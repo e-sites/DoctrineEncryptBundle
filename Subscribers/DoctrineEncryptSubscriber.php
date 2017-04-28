@@ -9,13 +9,11 @@ use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\Common\Annotations\Reader;
 use \Doctrine\ORM\EntityManager;
 use \ReflectionClass;
-
 /**
  * Doctrine event subscriber which encrypt/decrypt entities
  */
 class DoctrineEncryptSubscriber implements EventSubscriber
 {
-
     /**
      * Encryptor interface namespace
      */
@@ -110,7 +108,6 @@ class DoctrineEncryptSubscriber implements EventSubscriber
                 $this->addToDecodedRegistry($entity, $args->getEntityManager());
             }
         }
-
     }
 
     /**
@@ -189,11 +186,13 @@ class DoctrineEncryptSubscriber implements EventSubscriber
     private function encryptorFactory($classFullName, $secretKey)
     {
         $refClass = new \ReflectionClass($classFullName);
+
         if ($refClass->implementsInterface(self::ENCRYPTOR_INTERFACE_NS)) {
             return new $classFullName($secretKey);
-        } else {
-            throw new \RuntimeException('Encryptor must implements interface EncryptorInterface');
         }
+
+        throw new \RuntimeException('Encryptor must implements interface EncryptorInterface');
+
     }
 
     /**
@@ -226,5 +225,4 @@ class DoctrineEncryptSubscriber implements EventSubscriber
         $getter = 'get' . self::capitalize($metadata->getIdentifier());
         $this->decodedRegistry[$className][$entity->$getter()] = true;
     }
-
 }
