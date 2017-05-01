@@ -9,6 +9,7 @@ use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\Common\Annotations\Reader;
 use \Doctrine\ORM\EntityManager;
 use \ReflectionClass;
+
 /**
  * Doctrine event subscriber which encrypt/decrypt entities
  */
@@ -84,11 +85,7 @@ class DoctrineEncryptSubscriber implements EventSubscriber
             if ($this->annReader->getPropertyAnnotation($refProperty, self::ENCRYPTED_ANN_NAME)) {
                 $propName = $refProperty->getName();
                 if ($args->hasChangedField($propName)) {
-                    $oldValue = $this->encryptor->decrypt($args->getOldValue($propName));
-                    $newValue = $args->getNewValue($propName);
-                    if ($oldValue !== $newValue) {
-                        $args->setNewValue($propName, $this->encryptor->encrypt($newValue));
-                    }
+                    $args->setNewValue($propName, $this->encryptor->encrypt($args->getNewValue($propName)));
                 }
             }
         }
