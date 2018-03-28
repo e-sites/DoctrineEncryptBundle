@@ -7,6 +7,7 @@ use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\Common\Annotations\Reader;
+use Doctrine\ORM\Proxy\Proxy;
 use \Doctrine\ORM\EntityManager;
 use \ReflectionClass;
 
@@ -145,10 +146,13 @@ class DoctrineEncryptSubscriber implements EventSubscriber
      */
     private function processFields($entity, $isEncryptOperation = true)
     {
+        $class = ($entity instanceof Proxy) ? get_parent_class($entity) : get_class($entity);
+        
         $encryptorMethod = $isEncryptOperation ? 'encrypt' : 'decrypt';
-        $reflectionClass = new ReflectionClass($entity);
+        $reflectionClass = new ReflectionClass($class);
         $properties = $reflectionClass->getProperties();
         $withAnnotation = false;
+        
         foreach ($properties as $refProperty) {
             if ($this->annReader->getPropertyAnnotation($refProperty, self::ENCRYPTED_ANN_NAME)) {
                 $withAnnotation = true;
